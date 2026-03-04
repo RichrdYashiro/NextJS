@@ -1,7 +1,8 @@
-import { CreateEventSchema, JoinEventSchema, LeaveEventSchema } from "@/shared/api";
+import { CreateEventSchema, JoinEventSchema, LeaveEventSchema, UpdateEventSchema  } from "@/shared/api";
 import { prisma } from "../db";
 import { isAuth, procedure, router } from "../trpc";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 export const eventRouter = router({
   findMany: procedure.query(async ({ ctx: { user } }) => {
@@ -16,6 +17,7 @@ export const eventRouter = router({
       isJoined: participations.some(({ userId }) => userId === user?.id),
     }));
   }),
+
   findUnique: procedure
     .input(
       z.object({
@@ -27,6 +29,7 @@ export const eventRouter = router({
       return prisma.event.findUnique({
         where: input,
         select: {
+          authorId: true,
           title: true,
           description: true,
           date: true,
@@ -53,6 +56,22 @@ export const eventRouter = router({
         },
       });
     }),
+      update: procedure
+  .input(z.object({ id: z.number(), data: UpdateEventSchema }))
+   .use(isAuth)
+   .mutation(async({input, ctx: {user}}) =>{
+  const event = await prisma.event.findUnique({
+  where: { id: input.id },
+    });
+    if (!event || event.authorId !== user.id) {
+      throw new TRPCError({ code: "FORBIDDEN" });
+    }
+  return prisma.event.update({
+
+      where: { id: input.id },
+      data: input.data,
+    });
+   }),
   leave: procedure
    .input(LeaveEventSchema)
     .use(isAuth)

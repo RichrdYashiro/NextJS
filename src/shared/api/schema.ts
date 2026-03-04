@@ -6,6 +6,16 @@ export const CreateEventSchema = z.object({
   date: z.coerce.date(),
 });
 
+export const UpdateEventSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  date: z.coerce.date(),
+});
+
+
+
+export type UpdateEventSchema = z.infer<typeof UpdateEventSchema>;
+
 export type CreateEventSchema = z.infer<typeof CreateEventSchema>;
 
 export const JoinEventSchema = z.object({
