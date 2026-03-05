@@ -29,22 +29,22 @@ export const EventCard = ({
       </div>
       <div className="flex-auto p-6">
         <div className="flex flex-wrap -mt-6 pt-6 pb-6">
-          <h1 className="flex-auto text-lg font-semibold text-slate-900">
+          <h1 className="flex-auto text-lg font-semibold text-slate-900 text-white">
             {title}
           </h1>
-          <div className="text-lg font-semibold text-slate-500">
+          <div className="text-lg font-semibold text-slate-500 text-white">
             {date.toDateString()}
           </div>
-          <div className="w-full flex-none text-sm font-medium text-slate-700 mt-2">
+          <div className="w-full flex-none text-sm font-medium text-slate-700 mt-2 text-white">
             {description}
           </div>
         </div>
         <div className="flex space-x-4 text-sm font-medium">
-          <div className="flex-auto flex space-x-4">
+          <div className="flex-auto flex space-x-4 text-white">
             {action}
             <Link
               href={`/events/${id}`}
-              className="h-10 px-6 font-semibold rounded-md border border-slate-200 text-slate-900 align-middle leading-10"
+              className="h-10 px-6 font-semibold rounded-md border border-slate-200 text-slate-900 align-middle leading-10 text-white"
             >
               Подробнее
             </Link>

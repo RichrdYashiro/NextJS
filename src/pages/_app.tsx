@@ -6,7 +6,7 @@ import "@/app/global.css";
 
 function App({ Component, pageProps }: AppProps) {
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto ">
       <SessionProvider session={pageProps.session}>
         <Header />
         <Component {...pageProps} />
