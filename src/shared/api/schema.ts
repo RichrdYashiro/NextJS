@@ -13,10 +13,19 @@ export const UpdateEventSchema = z.object({
 });
 
 
+export const CreateUserSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  password:  z.string(),
+});
+
+
 
 export type UpdateEventSchema = z.infer<typeof UpdateEventSchema>;
 
 export type CreateEventSchema = z.infer<typeof CreateEventSchema>;
+
+export type CreateUserSchema = z.infer<typeof CreateUserSchema>;
 
 export const JoinEventSchema = z.object({
   id: z.number().int().positive(),

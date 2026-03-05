@@ -1,6 +1,42 @@
+import { trpc } from "@/shared/api";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+
+type RegistrationSchema = {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword?: string;
+};
 
 export const RegistrationForm = () => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegistrationSchema>();
+  const router = useRouter();
+  const passwordValue = watch("password");
+  const createUser = trpc.user.create.useMutation({
+    onSuccess: async (newUser, variables) => {
+      await signIn("credentials", {
+        email: variables.email,
+        password: variables.password,
+        redirect: false,
+      });
+      router.refresh();
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
+  const onSubmit = (data: RegistrationSchema) => {
+    createUser.mutate(data);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0b] px-6 py-12">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-full bg-indigo-500/10 blur-[120px] pointer-events-none" />
@@ -15,7 +51,25 @@ export const RegistrationForm = () => {
           </p>
         </div>
 
-        <form action="#" method="POST" className="mt-8 space-y-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          method="POST"
+          className="mt-8 space-y-5"
+        >
+          <div className="space-y-2">
+            <label
+              htmlFor="text"
+              className="block text-sm font-medium text-gray-300 ml-1"
+            >
+              Name
+            </label>
+            <input
+              {...register("name", { required: "Имя обязательно" })}
+              id="text"
+              type="text"
+              className="block w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 ..."
+            />
+          </div>
           <div className="space-y-2">
             <label
               htmlFor="email"
@@ -24,13 +78,22 @@ export const RegistrationForm = () => {
               Email address
             </label>
             <input
+              {...register("email", {
+                required: "Email обязателен",
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: "Некорректный формат email",
+                },
+              })}
               id="email"
-              name="email"
               type="email"
-              required
-              placeholder="name@example.com"
-              className="block w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200"
+              className="block w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 ..."
             />
+            {errors.email && (
+              <p className="text-sm text-red-500">
+                {String(errors.email.message)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -41,12 +104,24 @@ export const RegistrationForm = () => {
               Password
             </label>
             <input
+              {...register("password", {
+                required: "Пароль обязателен",
+                minLength: {
+                  value: 8,
+                  message: "Пароль должен быть не менее 8 символов",
+                },
+              })}
               id="password"
               name="password"
               type="password"
               required
               className="block w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200"
             />
+            {errors.password && (
+              <p className="text-sm text-red-500">
+                {String(errors.password.message)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -56,13 +131,22 @@ export const RegistrationForm = () => {
             >
               Repeat Password
             </label>
+
             <input
+              {...register("confirmPassword", {
+                required: "Повторите пароль",
+                validate: (value) =>
+                  value === passwordValue || "Пароли не совпадают",
+              })}
               id="confirmPassword"
-              name="confirmPassword"
               type="password"
-              required
-              className="block w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200"
+              className="block w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
             />
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-500 mt-1">
+                {String(errors.confirmPassword.message)}
+              </p>
+            )}
           </div>
 
           <div className="pt-2">

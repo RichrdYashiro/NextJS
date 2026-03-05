@@ -9,6 +9,8 @@ const t = initTRPC.context<Context>().create({
 export const router = t.router;
 export const procedure = t.procedure;
 
+export const user = t.procedure;
+
 export const isAuth = t.middleware(async (opts) => {
   const { ctx } = opts;
 
